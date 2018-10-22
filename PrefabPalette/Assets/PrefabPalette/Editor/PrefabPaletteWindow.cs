@@ -151,8 +151,9 @@ public class PrefabPaletteWindow : EditorWindow
             raycastMask = LayerMaskField("Raycast Mask", raycastMask);
 
             var par = EditorGUILayout.ObjectField("Parent To", parentTo, typeof(Transform), true) as Transform;
-            if (par == null || par.GetInstanceID() < 0)
-                parentTo = par;
+            if (par != parentTo)
+                if (par == null || (PrefabUtility.GetCorrespondingObjectFromSource(par) == null && PrefabUtility.GetPrefabObject(par) == null))
+                    parentTo = par;
 
             onlyUpwards = EditorGUILayout.Toggle("Only Up Normals", onlyUpwards);
 
