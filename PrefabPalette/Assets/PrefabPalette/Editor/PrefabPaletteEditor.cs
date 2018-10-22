@@ -37,7 +37,7 @@ public class PrefabPaletteEditor : Editor
         }
 
         GUI.enabled = prefabs.Count != palette.prefabs.Length;
-        if (GUILayout.Button("Cleanup", EditorStyles.miniButton))
+        if (GUILayout.Button(new GUIContent("Cleanup", "Clear nulls and duplicates"), EditorStyles.miniButton))
         {
             Undo.RecordObject(target, "cleanup palette");
             palette.prefabs = prefabs.ToArray();
@@ -45,13 +45,14 @@ public class PrefabPaletteEditor : Editor
         }
 
         GUI.enabled = !string.IsNullOrEmpty(palette.prevFolder) && AssetDatabase.IsValidFolder(palette.prevFolder);
-        if (GUILayout.Button("↺ Folder", EditorStyles.miniButton))
-        {
+        var content = new GUIContent("↺ Folder");
+        if (GUI.enabled)
+            content.tooltip = "Reload: " + palette.prevFolder;
+        if (GUILayout.Button(content, EditorStyles.miniButton))
             AddFolder(palette.prevFolder);
-        }
 
         GUI.enabled = true;
-        if (GUILayout.Button("＋ Folder", EditorStyles.miniButton))
+        if (GUILayout.Button(new GUIContent("＋ Folder", "Add all prefabs in a folder"), EditorStyles.miniButton))
         {
             var folder = EditorUtility.OpenFolderPanel("Select Folder", prevFolder, "");
             if (!string.IsNullOrEmpty(folder) && folder.StartsWith(Application.dataPath, System.StringComparison.Ordinal))
