@@ -9,7 +9,10 @@ public class PrefabPaletteWindow : EditorWindow
     [MenuItem("Window/Prefab Palette", priority = 10001)]
     static void CreateWindow()
     {
-        GetWindow<PrefabPaletteWindow>("Prefab Palette").Show();
+        var win = GetWindow<PrefabPaletteWindow>("Prefab Palette");
+        var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/PrefabPalette/Gizmos/PrefabPalette Icon.png");
+        win.titleContent = new GUIContent("Prefab Palette", icon);
+        win.Show();
     }
 
     public enum RotationType
@@ -24,7 +27,7 @@ public class PrefabPaletteWindow : EditorWindow
         Prefab,
         Custom,
         Random,
-        RandomUniform
+        RandomXYZ
     }
 
     PrefabPalette palette;
@@ -65,6 +68,9 @@ public class PrefabPaletteWindow : EditorWindow
         SceneView.onSceneGUIDelegate -= OnSceneGUI;
         SceneView.onSceneGUIDelegate += OnSceneGUI;
 
+        Undo.undoRedoPerformed -= Repaint;
+        Undo.undoRedoPerformed += Repaint;
+
         raycastMask = 1;
 
         wantsMouseMove = true;
@@ -75,6 +81,7 @@ public class PrefabPaletteWindow : EditorWindow
     void OnDisable()
     {
         SceneView.onSceneGUIDelegate -= OnSceneGUI;
+        Undo.undoRedoPerformed -= Repaint;
     }
 
     void OnSelectionChange()
@@ -176,7 +183,7 @@ public class PrefabPaletteWindow : EditorWindow
                 minScale = EditorGUILayout.Vector3Field("Min Scale", minScale);
                 maxScale = EditorGUILayout.Vector3Field("Max Scale", maxScale);
             }
-            else if (scaleMode == ScaleType.RandomUniform)
+            else if (scaleMode == ScaleType.RandomXYZ)
             {
                 minScaleU = EditorGUILayout.FloatField("Min Scale", minScaleU);
                 maxScaleU = EditorGUILayout.FloatField("Max Scale", maxScaleU);
@@ -198,8 +205,10 @@ public class PrefabPaletteWindow : EditorWindow
 
         GUILayout.Space(2f);
 
+        GUI.enabled = selected != null;
         if (GUILayout.Button("Stop Placement (ESC)", EditorStyles.miniButton))
             Deselect();
+        GUI.enabled = true;
         if (ev.type == EventType.KeyDown && ev.keyCode == KeyCode.Escape)
             Deselect();
             
@@ -215,6 +224,9 @@ public class PrefabPaletteWindow : EditorWindow
 
         foreach (var prefab in palette.prefabs)
         {
+            if (prefab == null)
+                continue;
+
             var rect = EditorGUILayout.GetControlRect(heightStyle);
 
             var bgRect = rect;
@@ -228,8 +240,9 @@ public class PrefabPaletteWindow : EditorWindow
             }
             else
             {
-                EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
-                if (rect.Contains(scrollMouse))
+                EditorGUIUtility.AddCursorRect(bgRect, MouseCursor.Link);
+
+                if (bgRect.Contains(scrollMouse))
                 {
                     EditorGUI.DrawRect(bgRect, new Color32(0x42, 0x80, 0xe4, 0x40));
                     if (ev.type == EventType.MouseDown)
@@ -351,7 +364,10 @@ public class PrefabPaletteWindow : EditorWindow
         }
 
         if (placingObj == null && selected != null)
+        {
             placingObj = (GameObject)PrefabUtility.InstantiatePrefab(selected, SceneManager.GetActiveScene());
+            placingObj.hideFlags = HideFlags.HideAndDontSave | HideFlags.NotEditable;
+        }
 
         if (placingObj == null)
             return;
@@ -421,6 +437,7 @@ public class PrefabPaletteWindow : EditorWindow
             return;
 
         var t = placingObj.transform;
+        placingObj.hideFlags = HideFlags.None;
 
         Undo.RegisterCreatedObjectUndo(placingObj, "place object");
 
@@ -455,7 +472,7 @@ public class PrefabPaletteWindow : EditorWindow
                 minScale.z + (maxScale.z - minScale.z) * Random.value
             );
         }
-        else if (scaleMode == ScaleType.RandomUniform)
+        else if (scaleMode == ScaleType.RandomXYZ)
         {
             float s = minScaleU + (maxScaleU - minScaleU) * Random.value;
             t.localScale = new Vector3(s, s, s);

@@ -6,4 +6,7 @@ using UnityEngine;
 public class PrefabPalette : ScriptableObject
 {
     public GameObject[] prefabs;
+
+    [HideInInspector]
+    public string prevFolder;
 }
