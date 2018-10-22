@@ -5,7 +5,7 @@ This tool provides you with a handy tool for building scenes in Unity, as an alt
 
 First, you create a `PrefabPalette`, which is a group of objects that you will be able to place into the scene.
 
-`Assets → Create → Prefab Palette`
+`Assets ➞ Create ➞ Prefab Palette`
 
 Once you have a palette, you can add objects to it from its inspector view.
 
@@ -15,7 +15,7 @@ You can press `＋ Folder` to add all prefabs located in a folder. After, you ca
 
 Once you've had a palette, you want to open the PrefabPalette window.
 
-`Window → Prefab Palette`
+`Window ➞ Prefab Palette`
 
 ![](Images/palette_window.png)
 
