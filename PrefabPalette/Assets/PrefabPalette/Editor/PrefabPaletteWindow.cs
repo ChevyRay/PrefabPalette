@@ -10,7 +10,7 @@ public class PrefabPaletteWindow : EditorWindow
     static void CreateWindow()
     {
         var win = GetWindow<PrefabPaletteWindow>("Prefab Palette");
-        var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/PrefabPalette/Gizmos/PrefabPalette Icon.png");
+        var icon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Gizmos/PrefabPalette Icon.png");
         win.titleContent = new GUIContent("Prefab Palette", icon);
         win.Show();
     }
